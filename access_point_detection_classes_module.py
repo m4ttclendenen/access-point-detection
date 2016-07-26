@@ -5,12 +5,14 @@ class Collector :
     def __init__(self) :
         self.wap_list = []
 
+    def display_wap_list(self) :
+        print ' CHANNEL\t\tBSSID\t\t\t\tESSID'
+        for w in self.wap_list :
+            print ' ' + str(w.channel) + '\t\t\t' + w.bssid + '\t\t' + w.essid
 
     def run(self) :
         packet_capture = sniff(count=50)
         self.process_packet_capture(packet_capture)
-
-
 
     def process_packet_capture(self, packet_capture) :
         for packet in packet_capture :

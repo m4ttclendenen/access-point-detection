@@ -49,11 +49,7 @@ def main() :
         C.process_packet_capture(packet_capture)
 
 
-    for w in C.wap_list :
-        print w.bssid
-        print w.essid
-        print w.channel
-        print '++++++++++++++++++++++++'
+    C.display_wap_list()
 
 
 
