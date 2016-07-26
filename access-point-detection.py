@@ -31,6 +31,7 @@ def set_wireless_channel(channel) :
 #                         print s
 #                     p = p.payload
 
+
 def main() :
 
     # enable_monitor_mode('wlan0')
@@ -44,9 +45,7 @@ def main() :
 
         set_wireless_channel(channel)
 
-        packet_capture = sniff(count = 50)
-
-        C.process_packet_capture(packet_capture)
+        sniff(count = 50, prn = C.process_packet)
 
 
     C.display_wap_list()
