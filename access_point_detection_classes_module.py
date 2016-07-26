@@ -1,32 +1,42 @@
 from scapy.all import *
+import subprocess
 
-class Handler :
+class Collector :
     def __init__(self) :
-        self.WAP_list = []
+        self.wap_list = []
+
+
+    def run(self) :
+        packet_capture = sniff(count=50)
+        self.process_packet_capture(packet_capture)
+
+
 
     def process_packet_capture(self, packet_capture) :
-            for packet in packet_capture :
-                if packet.haslayer(Dot11) :
-                    if packet.subtype == 8 :
-                        bssid = packet.addr3
-                        if packet.haslayer(Dot11Elt) :
-                            p = packet[Dot11Elt]
-                            while isinstance(p, Dot11Elt) :
-                                if p.ID == 0 :
-                                    essid = p.info
-                                if p.ID == 3 :
+        for packet in packet_capture :
+            if packet.haslayer(Dot11) :
+                if packet.subtype == 8 :
+                    bssid = packet.addr3
+                    if packet.haslayer(Dot11Elt) :
+                        p = packet[Dot11Elt]
+                        while isinstance(p, Dot11Elt) :
+                            if p.ID == 0 :
+                                essid = p.info
+                            if p.ID == 3 :
+                                try :
                                     channel = ord(p.info)
-                                p = p.payload
+                                except :
+                                    channel = ''
+                            p = p.payload
 
-                            wap = WirelessAccessPoint(bssid, essid, channel)
+                        TempWAP = WirelessAccessPoint(bssid, essid, channel)
 
-                            is_duplicate = self.check_for_duplicates(wap)
-                            if is_duplicate == False :
-                                self.WAP_list.append(wap)
+                        if self.check_for_duplicates(TempWAP) == False:
+                            self.wap_list.append(TempWAP)
 
-    def check_for_duplicates(self, wap) :
-        for x in self.WAP_list :
-            if wap.bssid == x.bssid :
+    def check_for_duplicates(self, TempWAP) :
+        for w in self.wap_list :
+            if TempWAP.bssid == w.bssid :
                 return True
         return False
 
