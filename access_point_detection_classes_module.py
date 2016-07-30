@@ -1,18 +1,19 @@
 from scapy.all import *
 import subprocess
 
-class Collector :
+
+class Handler :
     def __init__(self) :
         self.wap_list = []
+
+    def callback(self, packet) :
+        self.process_packet(packet)
+        self.display_wap_list()
 
     def display_wap_list(self) :
         print ' CHANNEL\t\tBSSID\t\t\t\tESSID'
         for w in self.wap_list :
             print ' ' + str(w.channel) + '\t\t\t' + w.bssid + '\t\t' + w.essid
-
-    def run(self) :
-        packet_capture = sniff(count=50)
-        self.process_packet_capture(packet_capture)
 
     def process_packet(self, packet) :
         if packet.haslayer(Dot11) :
@@ -32,7 +33,7 @@ class Collector :
 
                     TempWAP = WirelessAccessPoint(bssid, essid, channel)
 
-                    if self.check_for_duplicates(TempWAP) == False:
+                    if not self.check_for_duplicates(TempWAP):
                         self.wap_list.append(TempWAP)
 
     def check_for_duplicates(self, TempWAP) :
