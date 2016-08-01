@@ -1,4 +1,5 @@
 from access_point_detection_classes_module import *
+import curses
 
 def enable_monitor_mode(iface):
     subprocess.call('ifconfig ' + iface + ' down', shell=True)
@@ -34,25 +35,30 @@ def main() :
 
     # enable_monitor_mode('wlan0')
 
-    conf.iface = 'wlan0'
 
+    # conf.iface = 'wlan0'
+    #
     # Create instance
     H = Handler()
-
+    screen = curses.initscr()
+    curses.noecho()
+    curses.curs_set(0)
+    screen.keypad(1)
+    #
     # Iterator will be the channel number
-    for channel in range(1,11) :
+    for w in range(0,10) :
+        for channel in range(1,11) :
 
-        # Set the channel number through shell process
-        set_wireless_channel(channel)
+            # Set the channel number through shell process
+            set_wireless_channel(channel)
 
-        # Sniff and callback
-        # Callback collects wpa info from each packet | Then displays updated list
-        sniff(count = 50, prn = H.callback, store = 0)
-
-    # Clear screen
-    subprocess.call('clear', shell = True)
-    # Display final list
-    H.display_wap_list()
+            packet_capture = sniff(count = 10, store = 1)
+            H.process_packet_capture(packet_capture)
+            for i in range(0,len(H.wap_list)) :
+                screen.addstr(i,0, str(H.wap_list[i].bssid))
+                screen.addstr(i,25, str(H.wap_list[i].channel))
+                screen.addstr(i,30, str(H.wap_list[i].essid))
+            screen.refresh()
 
 
 
